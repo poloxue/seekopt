@@ -87,7 +87,9 @@ class OrderbookPanel(Static):
                     self._add_or_update_row(table, i, row)
                 while table.row_count > len(data):
                     table.remove_row(str(table.row_count - 1))
-        except BaseException:
+        except Exception:
+            pass
+        finally:
             await monitor.stop()
 
     async def on_mount(self):

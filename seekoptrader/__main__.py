@@ -64,7 +64,7 @@ def triangle(exchange_name, topn):
     MonitorApp(title, "triangle", monitor_params=monitor_parmas).run()
 
 
-@cli.command("intermarket-spread")
+@cli.command("spread")
 @click.option(
     "--panel",
     type=click.Choice(["orderbook", "ticker"], case_sensitive=False),
@@ -101,7 +101,7 @@ def triangle(exchange_name, topn):
     show_default=True,
     help="Number of top items to monitor",
 )
-def intermarket_spread(panel, market_a, market_b, quote_currency, symbols, topn):
+def spread(panel, market_a, market_b, quote_currency, symbols, topn):
     symbols = set(symbols.split(",")) if symbols else None
     monitor_params = {
         "market_a": market_a,
