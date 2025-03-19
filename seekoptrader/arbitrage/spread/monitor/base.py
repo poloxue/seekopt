@@ -6,8 +6,6 @@ import itertools
 from typing import Tuple, Dict
 from collections import defaultdict
 
-import ccxt.pro as ccxtpro
-
 from seekoptrader.utils import create_exchange
 
 
@@ -16,8 +14,8 @@ class MonitorBase:
         self.exchange_a_name, self.type_a, self.subtype_a = self.parse_market(market_a)
         self.exchange_b_name, self.type_b, self.subtype_b = self.parse_market(market_b)
 
-        self.exchange_a: ccxtpro.Exchange = create_exchange(self.exchange_a_name)
-        self.exchange_b: ccxtpro.Exchange = create_exchange(self.exchange_b_name)
+        self.exchange_a = create_exchange(self.exchange_a_name)
+        self.exchange_b = create_exchange(self.exchange_b_name)
 
         if symbols is not None:
             self.symbols = symbols
@@ -32,7 +30,7 @@ class MonitorBase:
 
         self.latencies = defaultdict(dict)
 
-    async def sync_time(self, exchange: ccxtpro.Exchange):
+    async def sync_time(self, exchange):
         while self.running:
             try:
                 start_time = time.time() * 1000

@@ -1,9 +1,8 @@
 import time
 import traceback
 import asyncio
-import ccxt.pro as ccxtpro
 
-from seekoptrader.arbitrage.intermarket.spread.monitor.base import MonitorBase
+from .base import MonitorBase
 
 
 class OrderbookMonitor(MonitorBase):
@@ -13,7 +12,7 @@ class OrderbookMonitor(MonitorBase):
         "okx": [1, 50],
     }
 
-    async def monitor(self, exchange: ccxtpro.Exchange, index: str, symbols):
+    async def monitor(self, exchange, index: str, symbols):
         """
         统一监控方法
         :param exchange: 交易所实例

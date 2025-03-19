@@ -1,9 +1,11 @@
+from ccxt.pro import Exchange
 import click
 
 from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer
 
-from arbitrage.intermarket.spread.panel import TickerPanel, OrderbookPanel
+from arbitrage.spread.panel import TickerPanel, OrderbookPanel
+from arbitrage.triangle.panel import Panel as TrianglePanel
 
 
 class MonitorApp(App):
@@ -14,10 +16,9 @@ class MonitorApp(App):
         }
         """
 
-    def __init__(self, monitor_panel, monitor_params):
-        self.TITLE = (
-            f"交易监控: A-{monitor_params['market_a']} B-{monitor_params['market_b']}"
-        )
+    def __init__(self, title, monitor_panel, monitor_params):
+        self.TITLE = title
+
         super().__init__()
 
         self.monitor_panel = monitor_panel
@@ -28,6 +29,8 @@ class MonitorApp(App):
             return TickerPanel(id=id)
         elif self.monitor_panel == "orderbook":
             return OrderbookPanel(id=id)
+        elif self.monitor_panel == "triangle":
+            return TrianglePanel(id=id)
         else:
             raise ValueError(f"Unsupported panel type: {self.monitor_panel}")
 
@@ -37,7 +40,31 @@ class MonitorApp(App):
         yield self.create_monitor_panel(id="content")
 
 
-@click.command()
+@click.group()
+def cli():
+    pass
+
+
+@cli.command("triangle")
+@click.option(
+    "--exchange-name",
+    default="okx",
+    help="Name of the exchange",
+)
+@click.option(
+    "--topn",
+    type=int,
+    default=20,
+    show_default=True,
+    help="Number of top items to monitor",
+)
+def triangle(exchange_name, topn):
+    title = f"三角套利监控: {exchange_name}"
+    monitor_parmas = {"exchange_name": exchange_name, "top_n": topn}
+    MonitorApp(title, "triangle", monitor_params=monitor_parmas).run()
+
+
+@cli.command("intermarket-spread")
 @click.option(
     "--panel",
     type=click.Choice(["orderbook", "ticker"], case_sensitive=False),
@@ -74,7 +101,7 @@ class MonitorApp(App):
     show_default=True,
     help="Number of top items to monitor",
 )
-def main(panel, market_a, market_b, quote_currency, symbols, topn):
+def intermarket_spread(panel, market_a, market_b, quote_currency, symbols, topn):
     symbols = set(symbols.split(",")) if symbols else None
     monitor_params = {
         "market_a": market_a,
@@ -83,7 +110,12 @@ def main(panel, market_a, market_b, quote_currency, symbols, topn):
         "symbols": symbols,
         "top_n": topn,
     }
-    MonitorApp(panel, monitor_params=monitor_params).run()
+    title = f"交易监控: A-{market_a} B-{market_b}"
+    MonitorApp(title, panel, monitor_params=monitor_params).run()
+
+
+def main():
+    cli()
 
 
 if __name__ == "__main__":
